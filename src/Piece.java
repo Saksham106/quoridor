@@ -1,8 +1,8 @@
 /**
- * Abstract base class for game pieces.
+ * Base class for game pieces.
  * Provides common functionality for value, ownership, and movement validation.
  */
-public abstract class Piece {
+public class Piece {
     protected final int value;
     protected String owner;
     protected boolean isEmpty;
@@ -41,9 +41,18 @@ public abstract class Piece {
         return isEmpty;
     }
 
-    public abstract boolean canMoveTo(Piece target);
+    public boolean canMoveTo(Piece target) {
+        // Default implementation - can move to empty pieces
+        return target != null && target.isEmpty();
+    }
 
-    public abstract String getDisplayString();
+    public String getDisplayString() {
+        // Default implementation - show value or space for empty
+        if (isEmpty) {
+            return " ";
+        }
+        return String.valueOf(value);
+    }
 
     @Override
     public boolean equals(Object obj) {

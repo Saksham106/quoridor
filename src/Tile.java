@@ -1,46 +1,78 @@
 /**
- * Concrete implementation of Piece for sliding puzzle tiles.
- * Supports both numbered tiles and blank tiles with movement validation.
+ * Represents a tile on the game board.
+ * A tile can contain a piece or be empty.
+ * This is the board space, not the game piece itself.
  */
-public class Tile extends Piece {
-    private final boolean isBlank;  // Whether this tile is the blank space
+public class Tile {
+    private Piece piece;  // The piece currently on this tile (null if empty)
 
-    public Tile(int value) {
-        super(value);
-        this.isBlank = (value == 0);
+    public Tile() {
+        this.piece = null;
     }
 
+    public Tile(Piece piece) {
+        this.piece = piece;
+    }
+
+    /**
+     * Get the piece currently on this tile.
+     * @return the piece on this tile, or null if empty
+     */
+    public Piece getPiece() {
+        return piece;
+    }
+
+    /**
+     * Set the piece on this tile.
+     * @param piece the piece to place on this tile (null to make empty)
+     */
+    public void setPiece(Piece piece) {
+        this.piece = piece;
+    }
+
+    /**
+     * Check if this tile is empty (no piece).
+     * @return true if empty, false if occupied
+     */
+    public boolean isEmpty() {
+        return piece == null;
+    }
+
+    /**
+     * Check if this tile contains a blank piece.
+     * @return true if contains a blank piece (value 0), false otherwise
+     */
     public boolean isBlank() {
-        return isBlank;
+        return piece != null && piece.getValue() == 0;
     }
 
-    @Override
-    public boolean canMoveTo(Piece target) {
-        // A tile can move to a position if the target is a blank tile
-        return target instanceof Tile && ((Tile) target).isBlank();
-    }
-
-    @Override
+    /**
+     * Get the display string for this tile.
+     * @return the display string of the piece, or " " if empty
+     */
     public String getDisplayString() {
-        if (isBlank) {
+        if (piece == null) {
             return " ";
         }
-        return String.valueOf(value);
+        return piece.getDisplayString();
     }
 
-    public static Tile createNumberedTile(int number) {
-        return new Tile(number);
-    }
-
-    public static Tile createBlankTile() {
-        return new Tile(0);
+    /**
+     * Get the value of the piece on this tile.
+     * @return the value of the piece, or 0 if empty
+     */
+    public int getValue() {
+        if (piece == null) {
+            return 0;
+        }
+        return piece.getValue();
     }
 
     @Override
     public String toString() {
-        if (isBlank) {
+        if (piece == null) {
             return "[ ]";
         }
-        return "[" + value + "]";
+        return piece.toString();
     }
 }

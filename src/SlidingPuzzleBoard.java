@@ -45,13 +45,13 @@ public class SlidingPuzzleBoard implements Board {
         if (!isValidPosition(row, col)) {
             return null;
         }
-        return grid[row][col];
+        return grid[row][col].getPiece();
     }
 
     @Override
     public void setPieceAt(int row, int col, Piece piece) {
-        if (isValidPosition(row, col) && piece instanceof Tile) {
-            grid[row][col] = (Tile) piece;
+        if (isValidPosition(row, col)) {
+            grid[row][col].setPiece(piece);
         }
     }
 
@@ -59,10 +59,10 @@ public class SlidingPuzzleBoard implements Board {
         int v = 1;
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                grid[r][c] = Tile.createNumberedTile(v++);
+                grid[r][c] = new Tile(new Piece(v++));
             }
         }
-        grid[rows - 1][cols - 1] = Tile.createBlankTile();
+        grid[rows - 1][cols - 1] = new Tile(new Piece(0));
     }
 
     /**
@@ -119,7 +119,7 @@ public class SlidingPuzzleBoard implements Board {
     private int[] findBlankTile() {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                if (((Tile) grid[r][c]).isBlank())
+                if (grid[r][c].isBlank())
                     return new int[] { r, c };
             }
         }
@@ -131,9 +131,9 @@ public class SlidingPuzzleBoard implements Board {
     }
 
     private void swapTiles(int r1, int c1, int r2, int c2) {
-        Tile tmp = grid[r1][c1];
-        grid[r1][c1] = grid[r2][c2];
-        grid[r2][c2] = tmp;
+        Piece tmp = grid[r1][c1].getPiece();
+        grid[r1][c1].setPiece(grid[r2][c2].getPiece());
+        grid[r2][c2].setPiece(tmp);
     }
 
     @Override
