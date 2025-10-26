@@ -1,5 +1,9 @@
 import java.util.*;
 
+/**
+ * Game board for Quoridor, implements Board class
+ * handles pawn movement, wall placement, and win conditions
+ */
 public class QuoridorBoard implements Board {
     public static final int BOARD_SIZE = 9;
     public static final int MAX_WALLS_PER_PLAYER = 10;
@@ -13,6 +17,9 @@ public class QuoridorBoard implements Board {
     private final boolean[][] horizontalWalls;
     private final boolean[][] verticalWalls;
 
+    /**
+     * Constructs a new Quoridor board for two players.
+     */
     public QuoridorBoard(List<String> playerNames) {
         if (playerNames == null || playerNames.size() != 2) {
             throw new IllegalArgumentException("Quoridor requires exactly 2 players");
@@ -40,6 +47,11 @@ public class QuoridorBoard implements Board {
         initializePawns();
     }
 
+    /**
+     * Places the two pawns at their starting positions.
+     * Player 1 starts at bottom center (8,4) targeting row 0.
+     * Player 2 starts at top center (0,4) targeting row 8.
+     */
     private void initializePawns() {
         Pawn pawn1 = new Pawn(playerNames.get(0), 8, 4, 0);
         grid[8][4].setPiece(pawn1);
@@ -50,16 +62,25 @@ public class QuoridorBoard implements Board {
         pawnPositions[0][4] = pawn2;
     }
 
+    /**
+     * Returns the number of rows on the board.
+     */
     @Override
     public int rows() {
         return BOARD_SIZE;
     }
 
+    /**
+     * Returns the number of columns on the board.
+     */
     @Override
     public int cols() {
         return BOARD_SIZE;
     }
 
+    /**
+     * Gets the piece at the specified board position.
+     */
     @Override
     public Piece getPieceAt(int row, int col) {
         if (!isValidPosition(row, col)) {
@@ -68,6 +89,9 @@ public class QuoridorBoard implements Board {
         return grid[row][col].getPiece();
     }
 
+    /**
+     * Sets a piece at the specified board position.
+     */
     @Override
     public void setPieceAt(int row, int col, Piece piece) {
         if (isValidPosition(row, col)) {
@@ -75,6 +99,9 @@ public class QuoridorBoard implements Board {
         }
     }
 
+    /**
+     * Checks if the game is solved .
+     */
     @Override
     public boolean isSolved() {
         for (int r = 0; r < BOARD_SIZE; r++) {
@@ -91,6 +118,9 @@ public class QuoridorBoard implements Board {
         return false;
     }
 
+    /**
+     * Finds and returns the pawn belonging to the specified player.
+     */
     public Pawn getPawnForPlayer(String playerName) {
         for (int r = 0; r < BOARD_SIZE; r++) {
             for (int c = 0; c < BOARD_SIZE; c++) {
@@ -106,6 +136,9 @@ public class QuoridorBoard implements Board {
         return null;
     }
 
+    /**
+     * Gets the name of the winning player, if any.
+     */
     public String getWinner() {
         for (int r = 0; r < BOARD_SIZE; r++) {
             for (int c = 0; c < BOARD_SIZE; c++) {
@@ -121,26 +154,45 @@ public class QuoridorBoard implements Board {
         return null;
     }
 
+    /**
+     * Gets the number of walls remaining for a player.
+     */
     public int getWallCount(String playerName) {
         return wallCounts.getOrDefault(playerName, 0);
     }
 
+    /**
+     * Gets the 2D array tracking pawn positions on the board.
+     */
     public Pawn[][] getPawnPositions() {
         return pawnPositions;
     }
 
+    /**
+     * Gets the array tracking horizontal wall placements.
+     */
     public boolean[][] getHorizontalWalls() {
         return horizontalWalls;
     }
 
+    /**
+     * Gets the array tracking vertical wall placements.
+     */
     public boolean[][] getVerticalWalls() {
         return verticalWalls;
     }
 
+    /**
+     * Gets a copy of the list of all placed walls.
+     */
     public List<Wall> getPlacedWalls() {
         return new ArrayList<>(placedWalls);
     }
 
+    /**
+     * Moves a player's pawn one space in the specified direction.
+     * Validates the move using MoveValidator to check for walls and other pawns.
+     */
     public boolean movePawn(String playerName, String direction) {
         Pawn pawn = getPawnForPlayer(playerName);
         if (pawn == null) {
@@ -186,6 +238,11 @@ public class QuoridorBoard implements Board {
         return true;
     }
 
+    /**
+     * Moves a player's pawn two spaces in the specified direction.
+     * Used for jump moves when an opponent pawn is directly adjacent.
+     * Note: This method assumes validation has already been done by the caller.
+     */
     public boolean movePawnTwoSteps(String playerName, String direction) {
         Pawn pawn = getPawnForPlayer(playerName);
         if (pawn == null) {
@@ -226,6 +283,9 @@ public class QuoridorBoard implements Board {
         return true;
     }
 
+    /**
+     * Attempts to place a wall on the board.
+     */
     public boolean placeWall(Wall wall) {
         if (wall == null) {
             return false;
@@ -257,6 +317,10 @@ public class QuoridorBoard implements Board {
         return false;
     }
 
+    /**
+     * Checks if a wall placement is valid (within bounds and no overlaps).
+     * Does not check pathfinding - that's done separately in placeWall().
+     */
     private boolean isValidWallPlacement(Wall wall) {
         int row = wall.getRow();
         int col = wall.getCol();
@@ -289,6 +353,10 @@ public class QuoridorBoard implements Board {
         return true;
     }
 
+    /**
+     * Temporarily places a wall on the board for pathfinding validation.
+     * A wall spans 2 segments, blocking movement between tiles.
+     */
     private void temporarilyPlaceWall(Wall wall) {
         if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
             // Horizontal wall blocks TWO vertical edges: at [row][col] and [row][col+1]
@@ -305,6 +373,10 @@ public class QuoridorBoard implements Board {
         }
     }
 
+    /**
+     * Removes a temporarily placed wall from the board.
+     * Used after pathfinding validation is complete.
+     */
     private void temporarilyRemoveWall(Wall wall) {
         if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
             horizontalWalls[wall.getRow()][wall.getCol()] = false;
@@ -319,6 +391,9 @@ public class QuoridorBoard implements Board {
         }
     }
 
+    /**
+     * Permanently places a wall on the board after all validations pass.
+     */
     private void permanentlyPlaceWall(Wall wall) {
         if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
             horizontalWalls[wall.getRow()][wall.getCol()] = true;
@@ -333,6 +408,10 @@ public class QuoridorBoard implements Board {
         }
     }
 
+    /**
+     * Checks if both players can still reach their goal rows.
+     * Used during wall placement validation.
+     */
     private boolean canBothPlayersReachGoal() {
         for (String playerName : playerNames) {
             Pawn pawn = getPawnForPlayer(playerName);
@@ -343,6 +422,10 @@ public class QuoridorBoard implements Board {
         return true;
     }
 
+    /**
+     * Uses BFS (Breadth-First Search) to determine if a pawn can reach its goal
+     * row.
+     */
     public boolean hasPathToGoal(Pawn pawn) {
         if (pawn == null) {
             return false;
@@ -393,6 +476,9 @@ public class QuoridorBoard implements Board {
         return false;
     }
 
+    /**
+     * Checks if a wall blocks movement between two adjacent tiles.
+     */
     private boolean isBlockedByWall(int fromRow, int fromCol, int toRow, int toCol) {
         if (fromRow == toRow) {
             int minCol = Math.min(fromCol, toCol);
@@ -410,7 +496,9 @@ public class QuoridorBoard implements Board {
     }
 
     /**
-     * Color a wall segment based on its owner.
+     * Colors a wall segment based on which player placed it.
+     * Searches through placed walls to find the owner, then applies
+     * the appropriate ANSI color code (blue for player 1, red for player 2).
      */
     private String colorWall(String symbol, int row, int col, boolean isVertical) {
         // Find which wall owns this segment
@@ -439,9 +527,12 @@ public class QuoridorBoard implements Board {
                 }
             }
         }
-        return symbol; // Shouldn't happen
+        return symbol;
     }
 
+    /**
+     * Generates a string representation of the board with color-coded pieces.
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
