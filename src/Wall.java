@@ -15,7 +15,7 @@ public class Wall extends Piece {
         public char getSymbol() {
             return symbol;
         }
-        
+
         public static Orientation fromChar(char c) {
             char upperC = Character.toUpperCase(c);
             for (Orientation orientation : values()) {
@@ -61,16 +61,8 @@ public class Wall extends Piece {
             // Same orientation - check if they're in the same position
             return this.row == other.row && this.col == other.col;
         } else {
-            // Different orientations - check for intersection
-            if (this.orientation == Orientation.HORIZONTAL) {
-                // This wall is horizontal, other is vertical
-                return (this.row == other.row || this.row == other.row + 1) &&
-                       (this.col == other.col || this.col + 1 == other.col);
-            } else {
-                // This wall is vertical, other is horizontal
-                return (this.col == other.col || this.col == other.col + 1) &&
-                       (this.row == other.row || this.row + 1 == other.row);
-            }
+
+            return this.row == other.row && this.col == other.col;
         }
     }
 
