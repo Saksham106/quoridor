@@ -109,11 +109,17 @@ public class MoveValidator {
         if (fromRow == toRow) {
             // Horizontal movement - check for vertical walls
             int col = Math.min(fromCol, toCol);
-            return verticalWalls[fromRow][col + 1];
+            if (col < 0 || col >= verticalWalls[0].length) {
+                return false;
+            }
+            return verticalWalls[fromRow][col];
         } else if (fromCol == toCol) {
             // Vertical movement - check for horizontal walls
             int row = Math.min(fromRow, toRow);
-            return horizontalWalls[row + 1][fromCol];
+            if (row < 0 || row >= horizontalWalls.length) {
+                return false;
+            }
+            return horizontalWalls[row][fromCol];
         }
         
         return false;

@@ -141,6 +141,42 @@ public class QuoridorBoard implements Board {
         return new ArrayList<>(placedWalls);
     }
 
+    public boolean movePawn(String playerName, String direction) {
+        Pawn pawn = getPawnForPlayer(playerName);
+        if (pawn == null) {
+            return false;
+        }
+
+        int currentRow = pawn.getRow();
+        int currentCol = pawn.getCol();
+        int newRow = currentRow;
+        int newCol = currentCol;
+
+        switch (direction.toLowerCase()) {
+            case "up": newRow--; break;
+            case "down": newRow++; break;
+            case "left": newCol--; break;
+            case "right": newCol++; break;
+            default: return false;
+        }
+
+        if (!MoveValidator.canMovePawn(currentRow, currentCol, newRow, newCol, 
+                                    pawnPositions, horizontalWalls, verticalWalls)) {
+            return false;
+        }
+
+        // Update pawn position
+        pawnPositions[currentRow][currentCol] = null;
+        pawnPositions[newRow][newCol] = pawn;
+        pawn.setPosition(newRow, newCol);
+
+        // Update grid
+        grid[currentRow][currentCol].setPiece(null);
+        grid[newRow][newCol].setPiece(pawn);
+
+        return true;
+    }
+
     public boolean placeWall(Wall wall) {
         if (wall == null) {
             return false;

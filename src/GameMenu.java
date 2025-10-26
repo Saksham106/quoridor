@@ -18,8 +18,9 @@ public class GameMenu {
         System.out.println("\n=== Game Selection Menu ===");
         System.out.println("1. Sliding Puzzle");
         System.out.println("2. Dots and Boxes");
-        System.out.println("3. Exit");
-        System.out.print("Enter your choice (1-3): ");
+        System.out.println("3. Quoridor");
+        System.out.println("4. Exit");
+        System.out.print("Enter your choice (1-4): ");
     }
 
     // Get a valid menu choice from the user
@@ -29,10 +30,10 @@ public class GameMenu {
             try {
                 String input = scanner.nextLine().trim();
                 int choice = Integer.parseInt(input);
-                if (choice >= 1 && choice <= 3) {
+                if (choice >= 1 && choice <= 4) {
                     return choice;
                 }
-                System.out.println("Please enter a number between 1 and 3.");
+                System.out.println("Please enter a number between 1 and 4.");
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid number.");
             }
@@ -56,6 +57,9 @@ public class GameMenu {
                     runDotsAndBoxes();
                     break;
                 case 3:
+                    runQuoridor();
+                    break;
+                case 4:
                     System.out.println("Thanks for playing! Goodbye!");
                     return;
                 default:
@@ -82,6 +86,17 @@ public class GameMenu {
         Player player1 = new Player(scanner);
         Player player2 = new Player(scanner);
         DotsAndBoxesGame game = new DotsAndBoxesGame(player1, player2);
+        game.run();
+    }
+
+    /**
+     * Launch the Quoridor game.
+     */
+    private void runQuoridor() {
+        System.out.println("\nStarting Quoridor...");
+        Player player1 = new Player(scanner);
+        Player player2 = new Player(scanner);
+        QuoridorGame game = new QuoridorGame(player1, player2);
         game.run();
     }
 }
