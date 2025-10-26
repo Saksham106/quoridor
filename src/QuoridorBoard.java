@@ -141,6 +141,167 @@ public class QuoridorBoard implements Board {
         return new ArrayList<>(placedWalls);
     }
 
+    public boolean placeWall(Wall wall) {
+        if (wall == null) {
+            return false;
+        }
+
+        String playerName = wall.getPlayerName();
+
+        if (getWallCount(playerName) <= 0) {
+            return false;
+        }
+
+        if (!isValidWallPlacement(wall)) {
+            return false;
+        }
+
+        temporarilyPlaceWall(wall);
+
+        boolean bothPlayersCanWin = canBothPlayersReachGoal();
+
+        temporarilyRemoveWall(wall);
+
+        if (bothPlayersCanWin) {
+            permanentlyPlaceWall(wall);
+            placedWalls.add(wall);
+            wallCounts.put(playerName, wallCounts.get(playerName) - 1);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isValidWallPlacement(Wall wall) {
+        int row = wall.getRow();
+        int col = wall.getCol();
+        Wall.Orientation orientation = wall.getOrientation();
+
+        if (orientation == Wall.Orientation.HORIZONTAL) {
+            if (row < 0 || row >= BOARD_SIZE - 1 || col < 0 || col >= BOARD_SIZE) {
+                return false;
+            }
+            if (horizontalWalls[row][col]) {
+                return false;
+            }
+        } else {
+            if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE - 1) {
+                return false;
+            }
+            if (verticalWalls[row][col]) {
+                return false;
+            }
+        }
+
+        for (Wall existingWall : placedWalls) {
+            if (wall.overlapsWith(existingWall)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void temporarilyPlaceWall(Wall wall) {
+        if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
+            horizontalWalls[wall.getRow()][wall.getCol()] = true;
+        } else {
+            verticalWalls[wall.getRow()][wall.getCol()] = true;
+        }
+    }
+
+    private void temporarilyRemoveWall(Wall wall) {
+        if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
+            horizontalWalls[wall.getRow()][wall.getCol()] = false;
+        } else {
+            verticalWalls[wall.getRow()][wall.getCol()] = false;
+        }
+    }
+
+    private void permanentlyPlaceWall(Wall wall) {
+        if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
+            horizontalWalls[wall.getRow()][wall.getCol()] = true;
+        } else {
+            verticalWalls[wall.getRow()][wall.getCol()] = true;
+        }
+    }
+
+    private boolean canBothPlayersReachGoal() {
+        for (String playerName : playerNames) {
+            Pawn pawn = getPawnForPlayer(playerName);
+            if (pawn == null || !hasPathToGoal(pawn)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean hasPathToGoal(Pawn pawn) {
+        if (pawn == null) {
+            return false;
+        }
+
+        int startRow = pawn.getRow();
+        int startCol = pawn.getCol();
+        int targetRow = pawn.getTargetRow();
+
+        if (startRow == targetRow) {
+            return true;
+        }
+
+        Queue<int[]> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[BOARD_SIZE][BOARD_SIZE];
+
+        queue.offer(new int[] { startRow, startCol });
+        visited[startRow][startCol] = true;
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int row = current[0];
+            int col = current[1];
+
+            if (row == targetRow) {
+                return true;
+            }
+
+            int[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+
+            for (int[] dir : directions) {
+                int newRow = row + dir[0];
+                int newCol = col + dir[1];
+
+                if (!isValidPosition(newRow, newCol) || visited[newRow][newCol]) {
+                    continue;
+                }
+
+                if (isBlockedByWall(row, col, newRow, newCol)) {
+                    continue;
+                }
+
+                visited[newRow][newCol] = true;
+                queue.offer(new int[] { newRow, newCol });
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isBlockedByWall(int fromRow, int fromCol, int toRow, int toCol) {
+        if (fromRow == toRow) {
+            int minCol = Math.min(fromCol, toCol);
+            if (minCol >= 0 && minCol < BOARD_SIZE - 1) {
+                return verticalWalls[fromRow][minCol];
+            }
+        } else if (fromCol == toCol) {
+            int minRow = Math.min(fromRow, toRow);
+            if (minRow >= 0 && minRow < BOARD_SIZE - 1) {
+                return horizontalWalls[minRow][fromCol];
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
