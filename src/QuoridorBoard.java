@@ -153,15 +153,24 @@ public class QuoridorBoard implements Board {
         int newCol = currentCol;
 
         switch (direction.toLowerCase()) {
-            case "up": newRow--; break;
-            case "down": newRow++; break;
-            case "left": newCol--; break;
-            case "right": newCol++; break;
-            default: return false;
+            case "up":
+                newRow--;
+                break;
+            case "down":
+                newRow++;
+                break;
+            case "left":
+                newCol--;
+                break;
+            case "right":
+                newCol++;
+                break;
+            default:
+                return false;
         }
 
-        if (!MoveValidator.canMovePawn(currentRow, currentCol, newRow, newCol, 
-                                    pawnPositions, horizontalWalls, verticalWalls)) {
+        if (!MoveValidator.canMovePawn(currentRow, currentCol, newRow, newCol,
+                pawnPositions, horizontalWalls, verticalWalls)) {
             return false;
         }
 
@@ -189,11 +198,20 @@ public class QuoridorBoard implements Board {
         int newCol = currentCol;
 
         switch (direction.toLowerCase()) {
-            case "up": newRow -= 2; break;
-            case "down": newRow += 2; break;
-            case "left": newCol -= 2; break;
-            case "right": newCol += 2; break;
-            default: return false;
+            case "up":
+                newRow -= 2;
+                break;
+            case "down":
+                newRow += 2;
+                break;
+            case "left":
+                newCol -= 2;
+                break;
+            case "right":
+                newCol += 2;
+                break;
+            default:
+                return false;
         }
 
         // Update pawn position
@@ -425,14 +443,42 @@ public class QuoridorBoard implements Board {
 
             if (r < BOARD_SIZE - 1) {
                 sb.append("   ");
-            for (int c = 0; c < BOARD_SIZE; c++) {
-                if (horizontalWalls[r][c]) {
-                    sb.append("--");
-                } else {
-                    sb.append("  ");
+                for (int c = 0; c < BOARD_SIZE; c++) {
+                    if (horizontalWalls[r][c]) {
+                        sb.append("-");
+                    } else {
+                        sb.append(" ");
+                    }
+                    if (c < BOARD_SIZE - 1) {
+
+                        boolean currentHasWall = horizontalWalls[r][c];
+                        boolean nextHasWall = horizontalWalls[r][c + 1];
+
+                        boolean sameWall = false;
+                        if (currentHasWall && nextHasWall) {
+                            for (Wall wall : placedWalls) {
+                                if (wall.getOrientation() == Wall.Orientation.HORIZONTAL &&
+                                        wall.getRow() == r) {
+                                    int wallCol = wall.getCol();
+                                    if (wallCol == c || (wallCol == c - 1) || (wallCol == c + 1)) {
+                                        if ((c >= wallCol && c <= wallCol + 1) &&
+                                                (c + 1 >= wallCol && c + 1 <= wallCol + 1)) {
+                                            sameWall = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (sameWall) {
+                            sb.append("-");
+                        } else {
+                            sb.append(" ");
+                        }
+                    }
                 }
-            }
-            sb.append("\n");
+                sb.append("\n");
             }
         }
 
