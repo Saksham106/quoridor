@@ -177,6 +177,37 @@ public class QuoridorBoard implements Board {
         return true;
     }
 
+    public boolean movePawnTwoSteps(String playerName, String direction) {
+        Pawn pawn = getPawnForPlayer(playerName);
+        if (pawn == null) {
+            return false;
+        }
+
+        int currentRow = pawn.getRow();
+        int currentCol = pawn.getCol();
+        int newRow = currentRow;
+        int newCol = currentCol;
+
+        switch (direction.toLowerCase()) {
+            case "up": newRow -= 2; break;
+            case "down": newRow += 2; break;
+            case "left": newCol -= 2; break;
+            case "right": newCol += 2; break;
+            default: return false;
+        }
+
+        // Update pawn position
+        pawnPositions[currentRow][currentCol] = null;
+        pawnPositions[newRow][newCol] = pawn;
+        pawn.setPosition(newRow, newCol);
+
+        // Update grid
+        grid[currentRow][currentCol].setPiece(null);
+        grid[newRow][newCol].setPiece(pawn);
+
+        return true;
+    }
+
     public boolean placeWall(Wall wall) {
         if (wall == null) {
             return false;
@@ -214,17 +245,19 @@ public class QuoridorBoard implements Board {
         Wall.Orientation orientation = wall.getOrientation();
 
         if (orientation == Wall.Orientation.HORIZONTAL) {
-            if (row < 0 || row >= BOARD_SIZE - 1 || col < 0 || col >= BOARD_SIZE) {
+            if (row < 0 || row >= BOARD_SIZE - 1 || col < 0 || col >= BOARD_SIZE - 1) {
                 return false;
             }
-            if (horizontalWalls[row][col]) {
+            // Check both segments of the horizontal wall
+            if (horizontalWalls[row][col] || (col + 1 < BOARD_SIZE && horizontalWalls[row][col + 1])) {
                 return false;
             }
         } else {
-            if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE - 1) {
+            if (row < 0 || row >= BOARD_SIZE - 1 || col < 0 || col >= BOARD_SIZE - 1) {
                 return false;
             }
-            if (verticalWalls[row][col]) {
+            // Check both segments of the vertical wall
+            if (verticalWalls[row][col] || (row + 1 < BOARD_SIZE && verticalWalls[row + 1][col])) {
                 return false;
             }
         }
@@ -240,25 +273,45 @@ public class QuoridorBoard implements Board {
 
     private void temporarilyPlaceWall(Wall wall) {
         if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
+            // Horizontal wall blocks TWO vertical edges: at [row][col] and [row][col+1]
             horizontalWalls[wall.getRow()][wall.getCol()] = true;
+            if (wall.getCol() + 1 < BOARD_SIZE) {
+                horizontalWalls[wall.getRow()][wall.getCol() + 1] = true;
+            }
         } else {
+            // Vertical wall blocks TWO horizontal edges: at [row][col] and [row+1][col]
             verticalWalls[wall.getRow()][wall.getCol()] = true;
+            if (wall.getRow() + 1 < BOARD_SIZE) {
+                verticalWalls[wall.getRow() + 1][wall.getCol()] = true;
+            }
         }
     }
 
     private void temporarilyRemoveWall(Wall wall) {
         if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
             horizontalWalls[wall.getRow()][wall.getCol()] = false;
+            if (wall.getCol() + 1 < BOARD_SIZE) {
+                horizontalWalls[wall.getRow()][wall.getCol() + 1] = false;
+            }
         } else {
             verticalWalls[wall.getRow()][wall.getCol()] = false;
+            if (wall.getRow() + 1 < BOARD_SIZE) {
+                verticalWalls[wall.getRow() + 1][wall.getCol()] = false;
+            }
         }
     }
 
     private void permanentlyPlaceWall(Wall wall) {
         if (wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
             horizontalWalls[wall.getRow()][wall.getCol()] = true;
+            if (wall.getCol() + 1 < BOARD_SIZE) {
+                horizontalWalls[wall.getRow()][wall.getCol() + 1] = true;
+            }
         } else {
             verticalWalls[wall.getRow()][wall.getCol()] = true;
+            if (wall.getRow() + 1 < BOARD_SIZE) {
+                verticalWalls[wall.getRow() + 1][wall.getCol()] = true;
+            }
         }
     }
 
@@ -372,17 +425,14 @@ public class QuoridorBoard implements Board {
 
             if (r < BOARD_SIZE - 1) {
                 sb.append("   ");
-                for (int c = 0; c < BOARD_SIZE; c++) {
-                    if (horizontalWalls[r][c]) {
-                        sb.append("-");
-                    } else {
-                        sb.append(" ");
-                    }
-                    if (c < BOARD_SIZE - 1) {
-                        sb.append(" ");
-                    }
+            for (int c = 0; c < BOARD_SIZE; c++) {
+                if (horizontalWalls[r][c]) {
+                    sb.append("--");
+                } else {
+                    sb.append("  ");
                 }
-                sb.append("\n");
+            }
+            sb.append("\n");
             }
         }
 

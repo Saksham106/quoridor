@@ -82,7 +82,40 @@ public class QuoridorGame extends BoardGame {
 
     private boolean applyPawnMove(int directionCode) {
         String direction = getDirectionFromCode(directionCode);
-        return board.movePawn(getCurrentPlayer().getName(), direction);
+        
+        // Try one-step move first
+        if (board.movePawn(getCurrentPlayer().getName(), direction)) {
+            return true;
+        }
+        
+        // If one-step fails, try two-step jump in same direction
+        Pawn pawn = board.getPawnForPlayer(getCurrentPlayer().getName());
+        if (pawn == null) {
+            return false;
+        }
+        
+        int currentRow = pawn.getRow();
+        int currentCol = pawn.getCol();
+        int jumpRow = currentRow;
+        int jumpCol = currentCol;
+        
+        switch (direction.toLowerCase()) {
+            case "up": jumpRow -= 2; break;
+            case "down": jumpRow += 2; break;
+            case "left": jumpCol -= 2; break;
+            case "right": jumpCol += 2; break;
+            default: return false;
+        }
+        
+        // Try two-step jump
+        if (MoveValidator.canMovePawn(currentRow, currentCol, jumpRow, jumpCol, 
+                                    board.getPawnPositions(), board.getHorizontalWalls(), 
+                                    board.getVerticalWalls())) {
+            board.movePawnTwoSteps(getCurrentPlayer().getName(), direction);
+            return true;
+        }
+        
+        return false;
     }
 
     private boolean applyWallMove(int wallCode) {

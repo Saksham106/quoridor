@@ -31,7 +31,7 @@ public class MoveValidator {
         
         // Check if it's a jump move (over an adjacent pawn)
         if (isJumpMove(fromRow, fromCol, toRow, toCol, pawns)) {
-            return !isBlockedByWall(fromRow, fromCol, toRow, toCol, horizontalWalls, verticalWalls);
+            return true; // Jumping is allowed even if there's a wall (can move diagonally if wall blocks jump)
         }
         
         // Check if it's a diagonal move (when jump is blocked by wall)
@@ -108,18 +108,16 @@ public class MoveValidator {
                                          boolean[][] horizontalWalls, boolean[][] verticalWalls) {
         if (fromRow == toRow) {
             // Horizontal movement - check for vertical walls
-            int col = Math.min(fromCol, toCol);
-            if (col < 0 || col >= verticalWalls[0].length) {
-                return false;
+            int minCol = Math.min(fromCol, toCol);
+            if (minCol >= 0 && minCol < verticalWalls[0].length) {
+                return verticalWalls[fromRow][minCol];
             }
-            return verticalWalls[fromRow][col];
         } else if (fromCol == toCol) {
             // Vertical movement - check for horizontal walls
-            int row = Math.min(fromRow, toRow);
-            if (row < 0 || row >= horizontalWalls.length) {
-                return false;
+            int minRow = Math.min(fromRow, toRow);
+            if (minRow >= 0 && minRow < horizontalWalls.length) {
+                return horizontalWalls[minRow][fromCol];
             }
-            return horizontalWalls[row][fromCol];
         }
         
         return false;
