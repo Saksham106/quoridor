@@ -21,6 +21,9 @@ public class QuoridorGame extends BoardGame {
         System.out.println("Welcome to Quoridor!");
         System.out.println("Be the first to reach the opposite side!\n");
 
+        // Clear player names for replay
+        playerNames.clear();
+
         String player1Name = getCurrentPlayer().getInput("Enter name for Player 1: ");
         if (player1Name.trim().isEmpty()) {
             player1Name = "Player 1";
@@ -82,39 +85,48 @@ public class QuoridorGame extends BoardGame {
 
     private boolean applyPawnMove(int directionCode) {
         String direction = getDirectionFromCode(directionCode);
-        
+
         // Try one-step move first
         if (board.movePawn(getCurrentPlayer().getName(), direction)) {
             return true;
         }
-        
+
         // If one-step fails, try two-step jump in same direction
         Pawn pawn = board.getPawnForPlayer(getCurrentPlayer().getName());
         if (pawn == null) {
             return false;
         }
-        
+
         int currentRow = pawn.getRow();
         int currentCol = pawn.getCol();
         int jumpRow = currentRow;
         int jumpCol = currentCol;
-        
+
         switch (direction.toLowerCase()) {
-            case "up": jumpRow -= 2; break;
-            case "down": jumpRow += 2; break;
-            case "left": jumpCol -= 2; break;
-            case "right": jumpCol += 2; break;
-            default: return false;
+            case "up":
+                jumpRow -= 2;
+                break;
+            case "down":
+                jumpRow += 2;
+                break;
+            case "left":
+                jumpCol -= 2;
+                break;
+            case "right":
+                jumpCol += 2;
+                break;
+            default:
+                return false;
         }
-        
+
         // Try two-step jump
-        if (MoveValidator.canMovePawn(currentRow, currentCol, jumpRow, jumpCol, 
-                                    board.getPawnPositions(), board.getHorizontalWalls(), 
-                                    board.getVerticalWalls())) {
+        if (MoveValidator.canMovePawn(currentRow, currentCol, jumpRow, jumpCol,
+                board.getPawnPositions(), board.getHorizontalWalls(),
+                board.getVerticalWalls())) {
             board.movePawnTwoSteps(getCurrentPlayer().getName(), direction);
             return true;
         }
-        
+
         return false;
     }
 
@@ -140,13 +152,13 @@ public class QuoridorGame extends BoardGame {
     protected String getInstructions() {
         String mode = nextMoveType.equals("move") ? "move your pawn" : "place a wall";
         String wallsRemaining = board.getWallCount(getCurrentPlayer().getName()) + " walls left";
-        
+
         return "Rules:\n" +
-               "1. Each turn: choose to " + mode + "\n" +
-               "2. Pawn moves: 'up', 'down', 'left', 'right'\n" +
-               "3. Wall placement: 'wall h row col' or 'wall v row col'\n" +
-               "4. Type 'switch' to toggle between move/wall modes\n" +
-               "5. You have " + wallsRemaining;
+                "1. Each turn: choose to " + mode + "\n" +
+                "2. Pawn moves: 'up', 'down', 'left', 'right'\n" +
+                "3. Wall placement: 'wall h row col' or 'wall v row col'\n" +
+                "4. Type 'switch' to toggle between move/wall modes\n" +
+                "5. You have " + wallsRemaining;
     }
 
     @Override
@@ -172,26 +184,36 @@ public class QuoridorGame extends BoardGame {
 
     private boolean isValidDirection(String direction) {
         return direction.equals("up") || direction.equals("down") ||
-               direction.equals("left") || direction.equals("right");
+                direction.equals("left") || direction.equals("right");
     }
 
     private int getDirectionCode(String direction) {
         switch (direction) {
-            case "up": return 1;
-            case "down": return 2;
-            case "left": return 3;
-            case "right": return 4;
-            default: return 0;
+            case "up":
+                return 1;
+            case "down":
+                return 2;
+            case "left":
+                return 3;
+            case "right":
+                return 4;
+            default:
+                return 0;
         }
     }
 
     private String getDirectionFromCode(int code) {
         switch (code) {
-            case 1: return "up";
-            case 2: return "down";
-            case 3: return "left";
-            case 4: return "right";
-            default: return "";
+            case 1:
+                return "up";
+            case 2:
+                return "down";
+            case 3:
+                return "left";
+            case 4:
+                return "right";
+            default:
+                return "";
         }
     }
 
