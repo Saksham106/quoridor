@@ -1,14 +1,15 @@
 /**
- * Pawn class for Quoridor game.
+ * Represents a pawn in Quoridor.
+ * Tracks position and checks if player has won by reaching opposite side.
  */
 public class Pawn extends Piece {
     private int row;
     private int col;
     private final String playerName;
-    private final int targetRow; // The row the pawn needs to reach to win
+    private final int targetRow; // Row to reach to win
 
     public Pawn(String playerName, int startRow, int startCol, int targetRow) {
-        super(1, playerName); // Pawns have value 1 and are owned by the player
+        super(1, playerName);
         this.playerName = playerName;
         this.row = startRow;
         this.col = startCol;
@@ -32,6 +33,7 @@ public class Pawn extends Piece {
         return targetRow;
     }
 
+    // Check if pawn reached the target row (won the game)
     public boolean hasWon() {
         return row == targetRow;
     }

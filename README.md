@@ -9,6 +9,8 @@
 - Email: sakshamg@bu.edu
 - Student ID: U45400025
 
+Github: https://github.com/Saksham106/quoridor
+
 ## Files
 ---------------------------------------------------------------------------
 

@@ -1,9 +1,13 @@
 import java.util.*;
 
+/**
+ * Quoridor game implementation.
+ * Manages turn-based gameplay with pawn movement and wall placement.
+ */
 public class QuoridorGame extends BoardGame {
     private QuoridorBoard board;
     private List<String> playerNames;
-    private String nextMoveType; // "move" or "wall"
+    private String nextMoveType; // Current turn type: "move" or "wall"
 
     public QuoridorGame(Player player1, Player player2) {
         super(Arrays.asList(player1, player2));
@@ -76,6 +80,7 @@ public class QuoridorGame extends BoardGame {
 
     @Override
     protected boolean applyMove(int moveCode) {
+        // Route to pawn move or wall placement based on turn type
         if (nextMoveType.equals("move")) {
             return applyPawnMove(moveCode);
         } else {
@@ -83,6 +88,7 @@ public class QuoridorGame extends BoardGame {
         }
     }
 
+    // Try one-step move first, then two-step jump if blocked
     private boolean applyPawnMove(int directionCode) {
         String direction = getDirectionFromCode(directionCode);
 
@@ -130,6 +136,7 @@ public class QuoridorGame extends BoardGame {
         return false;
     }
 
+    // Place a wall at specified position
     private boolean applyWallMove(int wallCode) {
         Wall.Orientation orientation = getWallOrientationFromCode(wallCode);
         int row = getWallRowFromCode(wallCode);
@@ -140,6 +147,7 @@ public class QuoridorGame extends BoardGame {
 
     @Override
     protected boolean handleSpecialCommand(String command) {
+        // Handle "switch" command to toggle between move/wall modes
         if (command.equalsIgnoreCase("switch")) {
             nextMoveType = nextMoveType.equals("move") ? "wall" : "move";
             System.out.println("Now in " + nextMoveType + " mode.");
@@ -182,6 +190,7 @@ public class QuoridorGame extends BoardGame {
         nextMoveType = "move"; // Start next turn with move
     }
 
+    // Helper methods for parsing and encoding moves
     private boolean isValidDirection(String direction) {
         return direction.equals("up") || direction.equals("down") ||
                 direction.equals("left") || direction.equals("right");

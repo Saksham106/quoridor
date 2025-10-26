@@ -1,11 +1,13 @@
 import java.util.*;
 
 /**
- * Move validation for Quoridor.
+ * Validates pawn movements in Quoridor.
+ * Handles orthogonal moves, jumping over pawns, and diagonal moves.
  */
 public class MoveValidator {
     public static final int BOARD_SIZE = 9;
     
+    // Check if a pawn can move from one position to another
     public static boolean canMovePawn(int fromRow, int fromCol, int toRow, int toCol,
                                     Pawn[][] pawns, boolean[][] horizontalWalls, 
                                     boolean[][] verticalWalls) {
@@ -31,7 +33,7 @@ public class MoveValidator {
         
         // Check if it's a jump move (over an adjacent pawn)
         if (isJumpMove(fromRow, fromCol, toRow, toCol, pawns)) {
-            return true; // Jumping is allowed even if there's a wall (can move diagonally if wall blocks jump)
+            return true;
         }
         
         // Check if it's a diagonal move (when jump is blocked by wall)
@@ -42,15 +44,19 @@ public class MoveValidator {
         return false;
     }
     
+    // Check if position is within board bounds
     private static boolean isValidPosition(int row, int col) {
         return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
     }
 
+    // Check if move is one step orthogonally (up, down, left, or right)
     private static boolean isOrthogonalMove(int fromRow, int fromCol, int toRow, int toCol) {
         int rowDiff = Math.abs(toRow - fromRow);
         int colDiff = Math.abs(toCol - fromCol);
         return (rowDiff == 1 && colDiff == 0) || (rowDiff == 0 && colDiff == 1);
     }
+    
+    // Check if move is a jump over an adjacent pawn
     private static boolean isJumpMove(int fromRow, int fromCol, int toRow, int toCol, Pawn[][] pawns) {
         int rowDiff = toRow - fromRow;
         int colDiff = toCol - fromCol;
@@ -69,6 +75,7 @@ public class MoveValidator {
         return false;
     }
     
+    // Check if move is diagonal when jump is blocked by wall
     private static boolean isDiagonalMove(int fromRow, int fromCol, int toRow, int toCol,
                                         Pawn[][] pawns, boolean[][] horizontalWalls,
                                         boolean[][] verticalWalls) {
@@ -104,6 +111,7 @@ public class MoveValidator {
         return false;
     }
     
+    // Check if there's a wall blocking the path between two positions
     private static boolean isBlockedByWall(int fromRow, int fromCol, int toRow, int toCol,
                                          boolean[][] horizontalWalls, boolean[][] verticalWalls) {
         if (fromRow == toRow) {

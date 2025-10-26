@@ -1,7 +1,9 @@
 /**
- * Wall class for Quoridor game.
+ * Represents a wall in Quoridor.
+ * Walls can be horizontal or vertical and block pawn movement.
  */
 public class Wall extends Piece {
+    // Wall orientation (horizontal or vertical)
     public enum Orientation {
         HORIZONTAL('H'),
         VERTICAL('V');
@@ -16,6 +18,7 @@ public class Wall extends Piece {
             return symbol;
         }
 
+        // Convert character to orientation
         public static Orientation fromChar(char c) {
             char upperC = Character.toUpperCase(c);
             for (Orientation orientation : values()) {
@@ -33,7 +36,7 @@ public class Wall extends Piece {
     private final String playerName;
 
     public Wall(Orientation orientation, int row, int col, String playerName) {
-        super(2, playerName); // Walls have value 2 and are owned by the player
+        super(2, playerName);
         this.orientation = orientation;
         this.row = row;
         this.col = col;
@@ -56,6 +59,7 @@ public class Wall extends Piece {
         return playerName;
     }
 
+    // Check if this wall overlaps with another wall
     public boolean overlapsWith(Wall other) {
         if (this.orientation == other.orientation) {
             // Same orientation - check if they're in the same position
