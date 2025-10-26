@@ -409,6 +409,39 @@ public class QuoridorBoard implements Board {
         return false;
     }
 
+    /**
+     * Color a wall segment based on its owner.
+     */
+    private String colorWall(String symbol, int row, int col, boolean isVertical) {
+        // Find which wall owns this segment
+        for (Wall wall : placedWalls) {
+            if (isVertical && wall.getOrientation() == Wall.Orientation.VERTICAL) {
+                int wallRow = wall.getRow();
+                int wallCol = wall.getCol();
+                // Vertical wall at (wallRow, wallCol) covers rows wallRow and wallRow+1
+                if (wallCol == col && (row == wallRow || row == wallRow + 1)) {
+                    if (wall.getPlayerName().equals(playerNames.get(0))) {
+                        return Colors.player1(symbol);
+                    } else {
+                        return Colors.player2(symbol);
+                    }
+                }
+            } else if (!isVertical && wall.getOrientation() == Wall.Orientation.HORIZONTAL) {
+                int wallRow = wall.getRow();
+                int wallCol = wall.getCol();
+                // Horizontal wall at (wallRow, wallCol) covers columns wallCol and wallCol+1
+                if (wallRow == row && (col == wallCol || col == wallCol + 1)) {
+                    if (wall.getPlayerName().equals(playerNames.get(0))) {
+                        return Colors.player1(symbol);
+                    } else {
+                        return Colors.player2(symbol);
+                    }
+                }
+            }
+        }
+        return symbol; // Shouldn't happen
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -426,14 +459,23 @@ public class QuoridorBoard implements Board {
             for (int c = 0; c < BOARD_SIZE; c++) {
                 Piece piece = grid[r][c].getPiece();
                 if (piece instanceof Pawn) {
-                    sb.append(piece.getDisplayString());
+                    Pawn pawn = (Pawn) piece;
+                    String display = piece.getDisplayString();
+                    // Color player 1 blue, player 2 red
+                    if (pawn.getPlayerName().equals(playerNames.get(0))) {
+                        sb.append(Colors.player1(display));
+                    } else {
+                        sb.append(Colors.player2(display));
+                    }
                 } else {
                     sb.append("·");
                 }
 
                 if (c < BOARD_SIZE - 1) {
                     if (verticalWalls[r][c]) {
-                        sb.append("|");
+                        // Color walls based on owner
+                        String wallDisplay = colorWall("|", r, c, true);
+                        sb.append(wallDisplay);
                     } else {
                         sb.append(" ");
                     }
@@ -445,7 +487,9 @@ public class QuoridorBoard implements Board {
                 sb.append("   ");
                 for (int c = 0; c < BOARD_SIZE; c++) {
                     if (horizontalWalls[r][c]) {
-                        sb.append("-");
+                        // Color walls based on owner
+                        String wallDisplay = colorWall("-", r, c, false);
+                        sb.append(wallDisplay);
                     } else {
                         sb.append(" ");
                     }
@@ -472,7 +516,9 @@ public class QuoridorBoard implements Board {
                         }
 
                         if (sameWall) {
-                            sb.append("-");
+                            // Use colored dash for connection
+                            String wallDisplay = colorWall("-", r, c, false);
+                            sb.append(wallDisplay);
                         } else {
                             sb.append(" ");
                         }
